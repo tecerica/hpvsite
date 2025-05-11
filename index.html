@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz HPV - Teste Seus Conhecimentos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            padding: 40px;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(45deg, #3498db, #2ecc71);
+            border-radius: 15px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header img {
+            width: 150px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+            transition: transform 0.3s ease;
+        }
+
+        .header img:hover {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .quiz-container {
+            display: none;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #3498db;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: showQuestion 0.5s forwards;
+        }
+
+        @keyframes showQuestion {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.4em;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 15px 25px;
+            margin: 12px 0;
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            font-size: 1em;
+            position: relative;
+        }
+
+        .options button:hover {
+            background: #3498db;
+            color: white;
+            transform: translateX(10px);
+        }
+
+        .options button.selected {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 12px 35px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .prev-btn {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .next-btn {
+            background-color: #27ae60;
+            color: white;
+            display: none;
+        }
+
+        #start-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.2em;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 5px 15px rgba(231,76,60,0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        #start-btn:hover {
+            background: #c0392b;
+            transform: translateY(-3px);
+        }
+
+        .progress {
+            height: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            margin-bottom: 25px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .score {
+            text-align: center;
+            padding: 30px;
+            background: #2ecc71;
+            border-radius: 15px;
+            color: white;
+            margin-top: 30px;
+            animation: showScore 0.5s ease-out;
+        }
+
+        @keyframes showScore {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .bacteria-icon {
+            width: 80px;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            opacity: 0.9;
+            animation: spin 20s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .nurse-img {
+            width: 150px;
+            margin: 30px auto;
+            display: block;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .result-image {
+            max-width: 200px;
+            margin: 20px auto;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .credit-cover {
+            position: absolute;
+            bottom: 15px;
+            right: 20px;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9em;
+            font-style: italic;
+            animation: fadeIn 2s ease-in;
+        }
+
+        .credit-general {
+            text-align: center;
+            color: #95a5a6;
+            font-size: 0.8em;
+            margin-top: 20px;
+            padding: 10px;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .credit-general:hover {
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 0.9; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .nav-btn {
+                width: 100%;
+            }
+            .bacteria-icon {
+                width: 60px;
+                right: 10px;
+                top: 10px;
+            }
+            .credit-cover {
+                font-size: 0.8em;
+                bottom: 10px;
+                right: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="credit-cover">Desenvolvido por Erica Barbosa - ENF-68</div>
+            <img src="https://cdn-icons-png.flaticon.com/512/9082/9082760.png" class="bacteria-icon" alt="Ícone HPV">
+            <img src="https://cdn-icons-png.flaticon.com/512/9082/9082686.png" alt="Ícone HPV">
+            <h1>Quiz sobre HPV</h1>
+            <p>Teste seus conhecimentos sobre o Papilomavírus Humano</p>
+            <button id="start-btn">▶ Iniciar Quiz</button>
+        </div>
+
+        <div class="quiz-container">
+            <div class="credit-general">Desenvolvido por Erica Barbosa - ENF-68</div>
+            <div class="progress">
+                <div class="progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "O que significa a sigla HPV?",
+                options: ["Herpes Posterior Viral", "Human Papilloma Virus", "Hepatite Papilomatosa Viral", "Hemograma Positivo Viral"],
+                correct: 1
+            },
+            {
+                question: "Como o HPV é geralmente transmitido?",
+                options: ["Pelo ar", "Por alimentos contaminados", "Pelo contato sexual", "Por picadas de insetos"],
+                correct: 2
+            },
+            {
+                question: "Qual é uma complicação grave associada ao HPV?",
+                options: ["Gripe", "Câncer de colo do útero", "Diabetes", "Hepatite"],
+                correct: 1
+            },
+            {
+                question: "O HPV pode afetar apenas mulheres?",
+                options: ["Sim", "Não", "Apenas em casos raros", "Depende da idade"],
+                correct: 1
+            },
+            {
+                question: "Existe vacina contra o HPV?",
+                options: ["Sim", "Não", "Apenas para homens", "Apenas após os 40 anos"],
+                correct: 0
+            },
+            {
+                question: "A vacina contra HPV é mais eficaz quando tomada:",
+                options: ["Após os 30 anos", "Durante uma infecção", "Antes do início da vida sexual", "Em jejum"],
+                correct: 2
+            },
+            {
+                question: "Quantos tipos de HPV existem aproximadamente?",
+                options: ["Mais de 100", "Apenas 10", "Cerca de 5", "50 no máximo"],
+                correct: 0
+            },
+            {
+                question: "Qual exame ajuda a detectar lesões causadas pelo HPV em mulheres?",
+                options: ["Exame de sangue", "Raio-X", "Papanicolau", "Ultrassom"],
+                correct: 2
+            },
+            {
+                question: "Homens também devem se vacinar contra o HPV?",
+                options: ["Não é necessário", "Sim, para se proteger e proteger parceiros", "Apenas se estiverem doentes", "A vacina é só para mulheres"],
+                correct: 1
+            },
+            {
+                question: "O HPV tem cura?",
+                options: ["Sim, com antibióticos", "Alguns tipos são eliminados pelo corpo naturalmente", "Somente com cirurgia", "Não existe nenhum tratamento"],
+                correct: 1
+            },
+            {
+                question: "O uso de preservativos reduz o risco de transmissão do HPV?",
+                options: ["Sim, embora não elimine totalmente o risco", "Não faz diferença", "Só se for preservativo feminino", "Apenas com lubrificante"],
+                correct: 0
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        const totalQuestions = questions.length;
+
+        document.getElementById('start-btn').addEventListener('click', () => {
+            document.querySelector('.header').style.display = 'none';
+            const container = document.querySelector('.quiz-container');
+            container.style.display = 'block';
+            loadQuestions();
+            showQuestion(currentQuestion);
+        });
+
+        function loadQuestions() {
+            const container = document.querySelector('.quiz-container');
+            questions.forEach((q, i) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = 'question';
+                qDiv.innerHTML = `
+                    <h2>${i + 1}. ${q.question}</h2>
+                    <div class="options">
+                        ${q.options.map(opt => `<button>${opt}</button>`).join('')}
+                    </div>
+                    <div class="navigation">
+                        <button class="nav-btn prev-btn">◀ Voltar</button>
+                        <button class="nav-btn next-btn">Avançar ▶</button>
+                    </div>
+                `;
+                container.insertBefore(qDiv, document.querySelector('.progress'));
+            });
+        }
+
+        function showQuestion(index) {
+            document.querySelectorAll('.question').forEach((q, i) => {
+                q.style.display = i === index ? 'block' : 'none';
+            });
+            updateProgress(index);
+            setupQuestionButtons(index);
+        }
+
+        function updateProgress(index) {
+            const progress = ((index + 1) / totalQuestions) * 100;
+            document.querySelector('.progress-bar').style.width = `${progress}%`;
+        }
+
+        function setupQuestionButtons(index) {
+            const question = document.querySelectorAll('.question')[index];
+            question.querySelector('.next-btn').style.display = 'none';
+            question.querySelectorAll('.options button').forEach(btn => {
+                btn.classList.remove('selected');
+                btn.disabled = false;
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.options button')) handleAnswerSelection(e);
+            if (e.target.closest('.prev-btn')) handlePrevButton();
+            if (e.target.closest('.next-btn')) handleNextButton();
+        });
+
+        function handleAnswerSelection(e) {
+            const questionDiv = e.target.closest('.question');
+            const buttons = questionDiv.querySelectorAll('.options button');
+            buttons.forEach(btn => {
+                btn.classList.remove('selected');
+                btn.disabled = true;
+            });
+            e.target.classList.add('selected');
+            questionDiv.querySelector('.next-btn').style.display = 'block';
+        }
+
+        function handlePrevButton() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+            }
+        }
+
+        function handleNextButton() {
+            const questionDiv = document.querySelectorAll('.question')[currentQuestion];
+            const selected = questionDiv.querySelector('.options button.selected');
+            
+            if (selected) {
+                checkAnswer(questionDiv, selected);
+                currentQuestion++;
+                if (currentQuestion < totalQuestions) {
+                    showQuestion(currentQuestion);
+                } else {
+                    showResults();
+                }
+            }
+        }
+
+        function checkAnswer(questionDiv, selected) {
+            const selectedIndex = Array.from(selected.parentElement.children).indexOf(selected);
+            if (selectedIndex === questions[currentQuestion].correct) score++;
+        }
+
+        function showResults() {
+            const errors = totalQuestions - score;
+            const resultData = getResultData(errors);
+            
+            const resultsHTML = `
+                <div class="score">
+                    <h2>🎉 Seu Resultado:</h2>
+                    ${resultData.image ? `<img src="${resultData.image}" class="result-image" alt="Resultado">` : ''}
+                    <p>Você acertou ${score} de ${totalQuestions} questões!</p>
+                    <p>${getResultMessage()}</p>
+                    <p><strong>${resultData.phrase}</strong></p>
+                    <button onclick="location.reload()" class="nav-btn" style="background: #3498db; margin-top: 15px;">Refazer Quiz</button>
+                </div>
+                <img src="https://e7.pngegg.com/pngimages/534/330/png-clipart-nursing-care-nurse-practitioner-doctor-of-nursing-practice-medicine-nurses-cap.png" 
+                     class="nurse-img" 
+                     alt="Enfermeira"
+                     title="Consulte sempre profissionais de saúde!">
+                <div class="credit-general" style="margin-top: 40px;">Desenvolvido por Erica Barbosa - ENF-68</div>
+            `;
+
+            document.querySelector('.quiz-container').innerHTML = resultsHTML;
+        }
+
+        function getResultData(errors) {
+            if (score === totalQuestions) return {
+                image: 'https://th.bing.com/th/id/R.2d5364b5ccbc905c82f923dfa28aac87?rik=2yC9ZoEa1xrUww&pid=ImgRaw&r=0',
+                phrase: 'Parabéns! Você é um expert em prevenção! 🏆'
+            };
+            if (errors === 1) return {
+                image: 'https://th.bing.com/th/id/OIP.WPByF2C7M9xj2DDnHLepwwAAAA?rs=1&pid=ImgDetMain',
+                phrase: 'Quase perfeito! Continue aprendendo! 🎯'
+            };
+            if (errors === 2) return {
+                image: 'https://th.bing.com/th/id/R.3878e703524e9719a5558696470eacc8?rik=ypWyCwynEX8pFg&pid=ImgRaw&r=0',
+                phrase: 'Bom resultado! Você está no caminho certo! 💪'
+            };
+            return { phrase: 'Hora de se informar melhor! 📚' };
+        }
+
+        function getResultMessage() {
+            const percentage = (score / totalQuestions) * 100;
+            if (percentage >= 90) return "Excelente! Seu conhecimento ajuda na prevenção!";
+            if (percentage >= 70) return "Muito bom! Continue se protegendo e informando!";
+            if (percentage >= 50) return "Bom, mas atenção à prevenção!";
+            return "Informação é a melhor prevenção!";
+        }
+    </script>
+</body>
+</html>
