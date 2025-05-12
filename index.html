@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+v<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -72,7 +72,10 @@
         }
 
         @keyframes showQuestion {
-            to { opacity: 1; transform: translateY(0); }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h2 {
@@ -94,6 +97,7 @@
             transition: all 0.2s ease;
             font-size: 1em;
             position: relative;
+            overflow: hidden;
         }
 
         .options button:hover {
@@ -187,8 +191,14 @@
         }
 
         @keyframes showScore {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         .bacteria-icon {
@@ -229,54 +239,23 @@
             50% { transform: translateY(-20px); }
         }
 
-        .credit-cover {
-            position: absolute;
-            bottom: 15px;
-            right: 20px;
-            color: rgba(255,255,255,0.9);
-            font-size: 0.9em;
-            font-style: italic;
-            animation: fadeIn 2s ease-in;
-        }
-
-        .credit-general {
-            text-align: center;
-            color: #95a5a6;
-            font-size: 0.8em;
-            margin-top: 20px;
-            padding: 10px;
-            opacity: 0.7;
-            transition: opacity 0.3s ease;
-        }
-
-        .credit-general:hover {
-            opacity: 1;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 0.9; transform: translateY(0); }
-        }
-
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
             }
+
             h1 {
                 font-size: 2em;
             }
+
             .nav-btn {
                 width: 100%;
             }
+
             .bacteria-icon {
                 width: 60px;
                 right: 10px;
                 top: 10px;
-            }
-            .credit-cover {
-                font-size: 0.8em;
-                bottom: 10px;
-                right: 15px;
             }
         }
     </style>
@@ -284,18 +263,22 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="credit-cover">Desenvolvido por Erica Barbosa - ENF-68</div>
-            <img src="https://cdn-icons-png.flaticon.com/512/9082/9082760.png" class="bacteria-icon" alt="Ícone HPV">
             <img src="https://cdn-icons-png.flaticon.com/512/9082/9082686.png" alt="Ícone HPV">
             <h1>Quiz sobre HPV</h1>
             <p>Teste seus conhecimentos sobre o Papilomavírus Humano</p>
+             <p>Desenvolvido por Érica Barbosa -ENF-68
             <button id="start-btn">▶ Iniciar Quiz</button>
         </div>
 
         <div class="quiz-container">
-            <div class="credit-general">Desenvolvido por Erica Barbosa - ENF-68</div>
             <div class="progress">
                 <div class="progress-bar" style="width: 0%"></div>
+            </div>
+
+            <div class="score" style="display: none;">
+                <h2>Seu Resultado:</h2>
+                <p>Você acertou <span id="total-score">0</span> de <span id="total-questions">0</span> questões!</p>
+                <p id="result-message"></p>
             </div>
         </div>
     </div>
@@ -367,12 +350,14 @@
             document.querySelector('.header').style.display = 'none';
             const container = document.querySelector('.quiz-container');
             container.style.display = 'block';
+            document.getElementById('total-questions').textContent = totalQuestions;
             loadQuestions();
             showQuestion(currentQuestion);
         });
 
         function loadQuestions() {
             const container = document.querySelector('.quiz-container');
+            const scoreDiv = container.querySelector('.score');
             questions.forEach((q, i) => {
                 const qDiv = document.createElement('div');
                 qDiv.className = 'question';
@@ -386,113 +371,96 @@
                         <button class="nav-btn next-btn">Avançar ▶</button>
                     </div>
                 `;
-                container.insertBefore(qDiv, document.querySelector('.progress'));
+                container.insertBefore(qDiv, scoreDiv);
             });
         }
 
         function showQuestion(index) {
             document.querySelectorAll('.question').forEach((q, i) => {
                 q.style.display = i === index ? 'block' : 'none';
+                q.classList.toggle('active', i === index);
             });
-            updateProgress(index);
-            setupQuestionButtons(index);
-        }
 
-        function updateProgress(index) {
             const progress = ((index + 1) / totalQuestions) * 100;
             document.querySelector('.progress-bar').style.width = `${progress}%`;
-        }
 
-        function setupQuestionButtons(index) {
-            const question = document.querySelectorAll('.question')[index];
-            question.querySelector('.next-btn').style.display = 'none';
-            question.querySelectorAll('.options button').forEach(btn => {
+            const currentQ = document.querySelector('.question.active');
+            currentQ.querySelector('.next-btn').style.display = 'none';
+            currentQ.querySelectorAll('.options button').forEach(btn => {
                 btn.classList.remove('selected');
                 btn.disabled = false;
             });
         }
 
         document.addEventListener('click', (e) => {
-            if (e.target.closest('.options button')) handleAnswerSelection(e);
-            if (e.target.closest('.prev-btn')) handlePrevButton();
-            if (e.target.closest('.next-btn')) handleNextButton();
-        });
-
-        function handleAnswerSelection(e) {
-            const questionDiv = e.target.closest('.question');
-            const buttons = questionDiv.querySelectorAll('.options button');
-            buttons.forEach(btn => {
-                btn.classList.remove('selected');
-                btn.disabled = true;
-            });
-            e.target.classList.add('selected');
-            questionDiv.querySelector('.next-btn').style.display = 'block';
-        }
-
-        function handlePrevButton() {
-            if (currentQuestion > 0) {
-                currentQuestion--;
-                showQuestion(currentQuestion);
+            if (e.target.closest('.options button')) {
+                const questionDiv = e.target.closest('.question');
+                const buttons = questionDiv.querySelectorAll('.options button');
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected');
+                    btn.disabled = true;
+                });
+                e.target.classList.add('selected');
+                questionDiv.querySelector('.next-btn').style.display = 'block';
             }
-        }
 
-        function handleNextButton() {
-            const questionDiv = document.querySelectorAll('.question')[currentQuestion];
-            const selected = questionDiv.querySelector('.options button.selected');
-            
-            if (selected) {
-                checkAnswer(questionDiv, selected);
-                currentQuestion++;
-                if (currentQuestion < totalQuestions) {
+            if (e.target.closest('.prev-btn')) {
+                if (currentQuestion > 0) {
+                    currentQuestion--;
                     showQuestion(currentQuestion);
-                } else {
-                    showResults();
                 }
             }
-        }
 
-        function checkAnswer(questionDiv, selected) {
-            const selectedIndex = Array.from(selected.parentElement.children).indexOf(selected);
-            if (selectedIndex === questions[currentQuestion].correct) score++;
-        }
+            if (e.target.closest('.next-btn')) {
+                const questionDiv = e.target.closest('.question');
+                const selected = questionDiv.querySelector('.options button.selected');
+                
+                if (selected) {
+                    const selectedIndex = Array.from(selected.parentElement.children).indexOf(selected);
+                    if (selectedIndex === questions[currentQuestion].correct) score++;
+                    
+                    currentQuestion++;
+                    if (currentQuestion < totalQuestions) {
+                        showQuestion(currentQuestion);
+                    } else {
+                        showResults();
+                    }
+                }
+            }
+        });
 
         function showResults() {
             const errors = totalQuestions - score;
-            const resultData = getResultData(errors);
-            
+            let resultImage = '';
+            let phrase = '';
+
+            if (score === totalQuestions) {
+                resultImage ='https://static.vecteezy.com/system/resources/previews/024/044/244/original/happy-nurse-clipart-transparent-background-free-png.png'
+                phrase = 'Parabéns! Você é um expert em prevenção! 🏆';
+            } else if (errors === 1) {
+                resultImage = 'https://th.bing.com/th/id/OIP.WPByF2C7M9xj2DDnHLepwwAAAA?rs=1&pid=ImgDetMain';
+                phrase = 'Quase perfeito! Continue aprendendo! 🎯';
+            } else if (errors === 2) {
+                resultImage = 'https://th.bing.com/th/id/R.3878e703524e9719a5558696470eacc8?rik=ypWyCwynEX8pFg&pid=ImgRaw&r=0';
+                phrase = 'Bom resultado! Você está no caminho certo! 💪';
+            } else {
+                phrase = 'Hora de se informar melhor! 📚';
+            }
+
             const resultsHTML = `
                 <div class="score">
                     <h2>🎉 Seu Resultado:</h2>
-                    ${resultData.image ? `<img src="${resultData.image}" class="result-image" alt="Resultado">` : ''}
+                    ${resultImage ? `<img src="${resultImage}" class="result-image" alt="Resultado">` : ''}
                     <p>Você acertou ${score} de ${totalQuestions} questões!</p>
                     <p>${getResultMessage()}</p>
-                    <p><strong>${resultData.phrase}</strong></p>
+                    <p><strong>${phrase}</strong></p>
                     <button onclick="location.reload()" class="nav-btn" style="background: #3498db; margin-top: 15px;">Refazer Quiz</button>
                 </div>
-                <img src="https://e7.pngegg.com/pngimages/534/330/png-clipart-nursing-care-nurse-practitioner-doctor-of-nursing-practice-medicine-nurses-cap.png" 
-                     class="nurse-img" 
-                     alt="Enfermeira"
+                <img src="https://th.bing.com/th/id/OIP.YBAGbhYI8kJIqukk1OENJQHaHa?pid=ImgDet&w=151&h=151&c=7" 
                      title="Consulte sempre profissionais de saúde!">
-                <div class="credit-general" style="margin-top: 40px;">Desenvolvido por Erica Barbosa - ENF-68</div>
             `;
 
             document.querySelector('.quiz-container').innerHTML = resultsHTML;
-        }
-
-        function getResultData(errors) {
-            if (score === totalQuestions) return {
-                image: 'https://th.bing.com/th/id/R.2d5364b5ccbc905c82f923dfa28aac87?rik=2yC9ZoEa1xrUww&pid=ImgRaw&r=0',
-                phrase: 'Parabéns! Você é um expert em prevenção! 🏆'
-            };
-            if (errors === 1) return {
-                image: 'https://th.bing.com/th/id/OIP.WPByF2C7M9xj2DDnHLepwwAAAA?rs=1&pid=ImgDetMain',
-                phrase: 'Quase perfeito! Continue aprendendo! 🎯'
-            };
-            if (errors === 2) return {
-                image: 'https://th.bing.com/th/id/R.3878e703524e9719a5558696470eacc8?rik=ypWyCwynEX8pFg&pid=ImgRaw&r=0',
-                phrase: 'Bom resultado! Você está no caminho certo! 💪'
-            };
-            return { phrase: 'Hora de se informar melhor! 📚' };
         }
 
         function getResultMessage() {
